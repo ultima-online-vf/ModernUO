@@ -20,6 +20,7 @@
 
 /Projects/*/obj
 /Projects/*/bin
+/Projects/*/Generated
 
 *.log
 *.user

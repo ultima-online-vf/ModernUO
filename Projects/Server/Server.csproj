@@ -34,7 +34,8 @@
         <RemoveDir Directories="Generated" ContinueOnError="true" />
     </Target>
     <ItemGroup>
-        <None Include="$(GeneratedSourcePath)\**" />
+<!--        <None Include="$(CompilerGeneratedFilesOutputPath)\**" />-->
+        <None Remove="$(CompilerGeneratedFilesOutputPath)\**" />
         <PackageReference Include="Microsoft.Net.Compilers.Toolset" Version="3.9.0">
           <PrivateAssets>all</PrivateAssets>
           <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
@@ -43,6 +44,6 @@
         <PackageReference Include="Zlib.Bindings" Version="1.4.0" />
     </ItemGroup>
     <ItemGroup>
-        <ProjectReference Include="..\EntitySerializationGenerator\EntitySerializationGenerator.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
+        <ProjectReference Include="..\SerializationGenerator\SerializationGenerator.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
     </ItemGroup>
 </Project>
