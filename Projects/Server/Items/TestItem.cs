@@ -11,7 +11,7 @@ namespace Server.Items
         public static void Initialize()
         {
             var obj = new TestItem(0x1000u);
-            Console.WriteLine("Worked! {0}", _version);
+            Console.WriteLine("Worked! {0} {1}", _version, obj.SomeProperty);
         }
     }
 }

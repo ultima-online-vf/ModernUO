@@ -28,14 +28,9 @@
         <Delete Files="..\..\Distribution\$(AssemblyName).pdb" ContinueOnError="true" />
         <Delete Files="..\..\Distribution\$(AssemblyName).runtimeconfig.dev.json" ContinueOnError="true" />
         <Delete Files="..\..\Distribution\$(AssemblyName).runtimeconfig.json" ContinueOnError="true" />
-        <RemoveDir Directories="Generated" ContinueOnError="true" />
-    </Target>
-    <Target Name="CleanGenerated" BeforeTargets="BeforeBuild">
-        <RemoveDir Directories="Generated" ContinueOnError="true" />
+        <RemoveDir Directories="Generated" />
     </Target>
     <ItemGroup>
-<!--        <None Include="$(CompilerGeneratedFilesOutputPath)\**" />-->
-        <None Remove="$(CompilerGeneratedFilesOutputPath)\**" />
         <PackageReference Include="Microsoft.Net.Compilers.Toolset" Version="3.9.0">
           <PrivateAssets>all</PrivateAssets>
           <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
@@ -46,4 +41,15 @@
     <ItemGroup>
         <ProjectReference Include="..\SerializationGenerator\SerializationGenerator.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
     </ItemGroup>
+    <Target Name="AddSourceGeneratedFiles" AfterTargets="CoreCompile">
+        <ItemGroup>
+            <Compile Include="Generated\**" />
+        </ItemGroup>
+    </Target>
+    <Target Name="RemoveSourceGeneratedFiles" BeforeTargets="CoreCompile">
+        <ItemGroup>
+            <Compile Remove="Generated\**" />
+        </ItemGroup>
+        <RemoveDir Directories="Generated" />
+    </Target>
 </Project>
