@@ -280,6 +280,10 @@ namespace Server.Accounting
 
         public Serial Serial { get; set; }
 
+        public void MarkDirty()
+        {
+        }
+
         public void Deserialize(IGenericReader reader)
         {
             Username = reader.ReadString();

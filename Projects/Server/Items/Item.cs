@@ -799,6 +799,8 @@ namespace Server
 
         public int TypeRef { get; }
 
+        public virtual void MarkDirty() => _savePosition = -1;
+
         public virtual void Serialize(IGenericWriter writer)
         {
             // The item is clean, so let's skip

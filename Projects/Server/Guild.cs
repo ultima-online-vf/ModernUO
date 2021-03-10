@@ -45,6 +45,7 @@ namespace Server.Guilds
         public abstract GuildType Type { get; set; }
         public abstract bool Disbanded { get; }
         public abstract void Delete();
+        public abstract void MarkDirty();
 
         public bool Deleted => Disbanded;
 

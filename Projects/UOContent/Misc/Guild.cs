@@ -1155,6 +1155,10 @@ namespace Server.Guilds
             list.TrimExcess();
         }
 
+        public override void MarkDirty()
+        {
+        }
+
         public override void Serialize(IGenericWriter writer)
         {
             if (LastFealty + TimeSpan.FromDays(1.0) < DateTime.UtcNow)

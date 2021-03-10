@@ -5,13 +5,8 @@ namespace Server
     [AttributeUsage(AttributeTargets.Field)]
     public sealed class SerializableFieldAttribute : Attribute
     {
-        public int Order { get; set; }
-        public Action<ISerializable, string, object> AfterSet { get; set; }
+        public int Order { get; }
 
-        public SerializableFieldAttribute(int order, Action<ISerializable, string, object> afterSet = null)
-        {
-            Order = order;
-            AfterSet = afterSet;
-        }
+        public SerializableFieldAttribute(int order) => Order = order;
     }
 }

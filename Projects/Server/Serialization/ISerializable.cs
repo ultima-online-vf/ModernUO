@@ -27,6 +27,8 @@ namespace Server
         void Delete();
         bool Deleted { get; }
 
+        void MarkDirty();
+
         public void InitializeSaveBuffer(byte[] buffer)
         {
             SaveBuffer = new BufferWriter(buffer, true);

@@ -73,6 +73,10 @@ namespace Server
         {
         }
 
+        public void MarkDirty()
+        {
+        }
+
         public void ProcessDelta()
         {
         }

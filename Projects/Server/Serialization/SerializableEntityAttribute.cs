@@ -5,11 +5,8 @@ namespace Server
     [AttributeUsage(AttributeTargets.Class)]
     public sealed class SerializableEntityAttribute : Attribute
     {
-        public int Version { get; set; }
+        public int Version { get; }
 
-        public SerializableEntityAttribute(int version)
-        {
-            Version = version;
-        }
+        public SerializableEntityAttribute(int version) => Version = version;
     }
 }
