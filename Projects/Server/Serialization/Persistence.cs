@@ -23,13 +23,15 @@ namespace Server
 {
     public static class Persistence
     {
+        public const int DefaultPriority = 100;
+
         public static readonly SortedSet<RegistryEntry> _registry = new(new RegistryEntryComparer());
 
         public static void Register(
             Action serializer,
             Action<string> snapshotWriter,
             Action<string> deserializer,
-            int priority = 100
+            int priority = DefaultPriority
         )
         {
             _registry.Add(
@@ -82,14 +84,14 @@ namespace Server
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void WriteConsole(string message)
         {
-            var now = DateTime.UtcNow;
+            var now = Core.Now;
             Console.Write("[{0} {1}] Persistence: {2}", now.ToShortDateString(), now.ToLongTimeString(), message);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void WriteConsoleLine(string message)
         {
-            var now = DateTime.UtcNow;
+            var now = Core.Now;
             Console.WriteLine("[{0} {1}] Persistence: {2}", now.ToShortDateString(), now.ToLongTimeString(), message);
         }
 
@@ -98,7 +100,7 @@ namespace Server
             try
             {
                 using var op = new StreamWriter("save-errors.log", true);
-                op.WriteLine("# {0}", DateTime.UtcNow);
+                op.WriteLine("# {0}", Core.Now);
 
                 op.WriteLine(ex);
 

@@ -957,7 +957,7 @@ namespace Server
 
             /* begin last moved time optimization */
             var ticks = LastMoved.Ticks;
-            var now = DateTime.UtcNow.Ticks;
+            var now = Core.Now.Ticks;
 
             var minutes = new TimeSpan(now - ticks).TotalMinutes;
 
@@ -2282,7 +2282,7 @@ namespace Server
 
         public void SetLastMoved()
         {
-            LastMoved = DateTime.UtcNow;
+            LastMoved = Core.Now;
         }
 
         public virtual bool CanStackWith(Item dropped) =>
@@ -2600,11 +2600,11 @@ namespace Server
 
                             try
                             {
-                                LastMoved = DateTime.UtcNow - TimeSpan.FromMinutes(minutes);
+                                LastMoved = Core.Now - TimeSpan.FromMinutes(minutes);
                             }
                             catch
                             {
-                                LastMoved = DateTime.UtcNow;
+                                LastMoved = Core.Now;
                             }
                         }
 

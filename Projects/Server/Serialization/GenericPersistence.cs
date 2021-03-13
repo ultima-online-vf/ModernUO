@@ -23,7 +23,8 @@ namespace Server
         public static void Register(
             string name,
             Action<IGenericWriter> serializer,
-            Action<IGenericReader> deserializer
+            Action<IGenericReader> deserializer,
+            int priority = Persistence.DefaultPriority
         )
         {
             BufferWriter saveBuffer = null;
@@ -46,7 +47,7 @@ namespace Server
                 using var bin = new BinaryFileWriter(binPath, true);
 
                 saveBuffer!.Resize((int)saveBuffer.Position);
-                bin.Write(saveBuffer.Buffer.AsSpan());
+                bin.Write(saveBuffer.Buffer);
             }
 
             void Deserialize(string savePath)
@@ -77,7 +78,7 @@ namespace Server
                 }
             }
 
-            Persistence.Register(Serialize, WriterSnapshot, Deserialize);
+            Persistence.Register(Serialize, WriterSnapshot, Deserialize, priority);
         }
     }
 }
