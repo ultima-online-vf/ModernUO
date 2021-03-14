@@ -379,7 +379,7 @@ namespace Server
         Cured
     }
 
-    [Serializable]
+    [System.Serializable]
     public class MobileNotConnectedException : Exception
     {
         public MobileNotConnectedException(Mobile source, string message)
@@ -571,8 +571,17 @@ namespace Server
 
         private bool m_YellowHealthbar;
 
-        // Position in the save buffer where serialization ends. -1 if dirty
-        private int _savePosition = -1;
+        public Mobile()
+        {
+            m_Region = Map.Internal.DefaultRegion;
+            Serial = World.NewMobile;
+
+            DefaultMobileInit();
+
+            World.AddEntity(this);
+
+            SetTypeRef(GetType());
+        }
 
         public Mobile(Serial serial)
         {
@@ -583,31 +592,16 @@ namespace Server
             NextSkillTime = Core.TickCount;
             DamageEntries = new List<DamageEntry>();
 
-            var ourType = GetType();
-            TypeRef = World.MobileTypes.IndexOf(ourType);
-
-            if (TypeRef == -1)
-            {
-                World.MobileTypes.Add(ourType);
-                TypeRef = World.MobileTypes.Count - 1;
-            }
+            SetTypeRef(GetType());
         }
 
-        public Mobile()
+        public void SetTypeRef(Type type)
         {
-            m_Region = Map.Internal.DefaultRegion;
-            Serial = World.NewMobile;
-
-            DefaultMobileInit();
-
-            World.AddEntity(this);
-
-            var ourType = GetType();
-            TypeRef = World.MobileTypes.IndexOf(ourType);
+            TypeRef = World.MobileTypes.IndexOf(type);
 
             if (TypeRef == -1)
             {
-                World.MobileTypes.Add(ourType);
+                World.MobileTypes.Add(type);
                 TypeRef = World.MobileTypes.Count - 1;
             }
         }
@@ -2543,24 +2537,17 @@ namespace Server
             AddNameProperties(list);
         }
 
+        long ISerializable.SavePosition { get; set; }
+
         BufferWriter ISerializable.SaveBuffer { get; set; }
 
         [CommandProperty(AccessLevel.Counselor)]
         public Serial Serial { get; }
 
-        public int TypeRef { get; }
-
-        public virtual void MarkDirty() => _savePosition = -1;
+        public int TypeRef { get; private set; }
 
         public virtual void Serialize(IGenericWriter writer)
         {
-            // The item is clean, so let's skip
-            if (_savePosition > -1)
-            {
-                writer.Seek(_savePosition, SeekOrigin.Begin);
-                return;
-            }
-
             writer.Write(32); // version
 
             writer.WriteDeltaTime(LastStrGain);

@@ -1,4 +1,6 @@
+using System;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 
 namespace Server.Guilds
 {
@@ -11,31 +13,27 @@ namespace Server.Guilds
 
     public abstract class BaseGuild : ISerializable
     {
-        protected BaseGuild(Serial serial)
-        {
-            Serial = serial;
-
-            var ourType = GetType();
-            TypeRef = World.GuildTypes.IndexOf(ourType);
-
-            if (TypeRef == -1)
-            {
-                World.GuildTypes.Add(ourType);
-                TypeRef = World.GuildTypes.Count - 1;
-            }
-        }
-
         protected BaseGuild()
         {
             Serial = World.NewGuild;
             World.AddGuild(this);
 
-            var ourType = GetType();
-            TypeRef = World.GuildTypes.IndexOf(ourType);
+            SetTypeRef(GetType());
+        }
+
+        protected BaseGuild(Serial serial)
+        {
+            Serial = serial;
+            SetTypeRef(GetType());
+        }
+
+        public void SetTypeRef(Type type)
+        {
+            TypeRef = World.GuildTypes.IndexOf(type);
 
             if (TypeRef == -1)
             {
-                World.GuildTypes.Add(ourType);
+                World.GuildTypes.Add(type);
                 TypeRef = World.GuildTypes.Count - 1;
             }
         }
@@ -45,7 +43,6 @@ namespace Server.Guilds
         public abstract GuildType Type { get; set; }
         public abstract bool Disbanded { get; }
         public abstract void Delete();
-        public abstract void MarkDirty();
 
         public bool Deleted => Disbanded;
 
@@ -54,7 +51,16 @@ namespace Server.Guilds
 
         BufferWriter ISerializable.SaveBuffer { get; set; }
 
-        public int TypeRef { get; }
+        public int TypeRef { get; private set; }
+
+        private long _savePosition;
+        long ISerializable.SavePosition
+        {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get => _savePosition;
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            set => _savePosition = value;
+        }
 
         public abstract void Serialize(IGenericWriter writer);
         public abstract void Deserialize(IGenericReader reader);

@@ -38,7 +38,7 @@ namespace SerializationGenerator
 
             context.RegisterForPostInitialization(i =>
             {
-                SerializerSyntaxReceiver.AttributeTypes.Add("Server.SerializableEntityAttribute");
+                SerializerSyntaxReceiver.AttributeTypes.Add("Server.SerializableAttribute");
                 SerializerSyntaxReceiver.AttributeTypes.Add("Server.SerializableFieldAttribute");
             });
 
@@ -52,7 +52,7 @@ namespace SerializationGenerator
                 return;
             }
 
-            var serializableEntityAttribute = context.Compilation.GetTypeByMetadataName("Server.SerializableEntityAttribute");
+            var serializableEntityAttribute = context.Compilation.GetTypeByMetadataName("Server.SerializableAttribute");
             var serializableFieldAttribute = context.Compilation.GetTypeByMetadataName("Server.SerializableFieldAttribute");
             var serializableInterfaceAttribute = context.Compilation.GetTypeByMetadataName("Server.ISerializable");
 
@@ -143,13 +143,9 @@ namespace {namespaceName}
     {{
         private const int _version = {version};
 
-        private int _savePosition = -1;
-
         public {className}(Serial serial) : base(serial)
         {{
         }}
-
-        private void ResetSave() => _savePosition = -1;
 ");
         }
 
@@ -193,7 +189,7 @@ namespace {namespaceName}
             {{
                 if (value != {fieldName})
                 {{
-                    ResetSave();
+                    MarkDirtyg();
                     {fieldName} = value;
                 }}
             }}
@@ -206,28 +202,21 @@ namespace {namespaceName}
             // TODO: Detect if thsi should be an override
             source.AppendLine($@"        public override void Serialize(IGenericWriter writer)
         {{
-            if (_savePosition > -1)
-            {{
-                writer.Seek(_savePosition, SeekOrigin.Begin);
-                return;
-            }}
-
             writer.WriteEncodedInt({version});
 ");
 
-            source.AppendLine($@"            _savePosition = (int)writer.Position;
-        }}");
+            source.AppendLine(@"        }");
         }
 
         private static void GenerateDeserializeMethod(StringBuilder source, List<IFieldSymbol> fields, int version)
         {
-            // TODO: Detect if thsi should be an override
+            // TODO: Detect if this should be an override
             source.AppendLine($@"        public override void Deserialize(IGenericReader reader)
         {{
 
 ");
 
-            source.AppendLine($@"        }}");
+            source.AppendLine(@"        }");
         }
     }
 }
