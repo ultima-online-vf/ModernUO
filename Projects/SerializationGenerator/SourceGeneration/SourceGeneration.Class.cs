@@ -2,7 +2,7 @@
  * ModernUO                                                              *
  * Copyright (C) 2019-2021 - ModernUO Development Team                   *
  * Email: hi@modernuo.com                                                *
- * File: GenerateSerializableClass.cs                                    *
+ * File: SourceGeneration.Class.cs                                       *
  *                                                                       *
  * This program is free software: you can redistribute it and/or modify  *
  * it under the terms of the GNU General Public License as published by  *
@@ -17,22 +17,18 @@ using System.Text;
 
 namespace SerializationGenerator
 {
-    public static class GenerateSerializableClass
+    public static partial class SourceGeneration
     {
-        public static void GenerateSerialCtor(this StringBuilder source, string className)
+        public static void GenerateClassStart(this StringBuilder source, string className)
         {
-            source.AppendLine($@"        public {className}(Serial serial)
-        {{
-            Serial = serial;
-            SetTypeRef(GetType());
-        }}");
+            source.AppendLine($@"    public partial class {className}
+    {{"
+            );
         }
 
-        public static void GenerateSerialCtorOverride(this StringBuilder source, string className)
+        public static void GenerateClassEnd(this StringBuilder source)
         {
-            source.AppendLine($@"        public {className}(Serial serial) : base(serial)
-        {{
-        }}");
+            source.AppendLine(@"    }");
         }
     }
 }

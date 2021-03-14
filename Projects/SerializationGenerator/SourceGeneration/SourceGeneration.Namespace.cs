@@ -2,7 +2,7 @@
  * ModernUO                                                              *
  * Copyright (C) 2019-2021 - ModernUO Development Team                   *
  * Email: hi@modernuo.com                                                *
- * File: GenerateSerializableClass.cs                                    *
+ * File: SourceGeneration.Namespace.cs                                   *
  *                                                                       *
  * This program is free software: you can redistribute it and/or modify  *
  * it under the terms of the GNU General Public License as published by  *
@@ -13,26 +13,38 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>. *
  *************************************************************************/
 
+using System;
+using System.Collections.Immutable;
+using System.Linq;
 using System.Text;
+using Microsoft.CodeAnalysis;
 
 namespace SerializationGenerator
 {
-    public static class GenerateSerializableClass
+    public static partial class SourceGeneration
     {
-        public static void GenerateSerialCtor(this StringBuilder source, string className)
+        public static void GenerateUsings(this StringBuilder source, IImmutableList<ITypeSymbol> typesUsed)
         {
-            source.AppendLine($@"        public {className}(Serial serial)
-        {{
-            Serial = serial;
-            SetTypeRef(GetType());
-        }}");
+            var enumerable = typesUsed
+                .Select(t => t.ContainingNamespace.Name)
+                .Distinct()
+                .OrderByDescending(t => t);
+
+            foreach (var t in enumerable)
+            {
+                source.Insert(0, $"using {t}{Environment.NewLine}");
+            }
         }
 
-        public static void GenerateSerialCtorOverride(this StringBuilder source, string className)
+        public static void GenerateNamespaceStart(this StringBuilder source, string namespaceName)
         {
-            source.AppendLine($@"        public {className}(Serial serial) : base(serial)
-        {{
-        }}");
+            source.AppendLine($@"namespace {namespaceName}
+{{");
+        }
+
+        public static void GenerateNamespaceEnd(this StringBuilder source)
+        {
+            source.AppendLine("}");
         }
     }
 }
