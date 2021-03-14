@@ -13,12 +13,10 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>. *
  *************************************************************************/
 
-using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Text;
-using Humanizer;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Text;
 
@@ -74,6 +72,9 @@ namespace SerializationGenerator
             }
         }
 
+        private static bool ContainsInterface(ITypeSymbol symbol, ISymbol interfaceSymbol) =>
+            symbol?.AllInterfaces.Any(i => i.Equals(interfaceSymbol, SymbolEqualityComparer.Default)) ?? false
+
         private static string GenerateSerializationPartialClass(
             INamedTypeSymbol classSymbol,
             List<IFieldSymbol> fields,
@@ -83,13 +84,16 @@ namespace SerializationGenerator
             GeneratorExecutionContext context
         )
         {
+            // This is a class symbol if the containing symbol is the namespace
             if (!classSymbol.ContainingSymbol.Equals(classSymbol.ContainingNamespace, SymbolEqualityComparer.Default))
             {
                 return null;
             }
 
-            // Require ISerializable (for now)
-            if (!classSymbol.AllInterfaces.Any(i => i.Equals(serializableInterfaceAttribute, SymbolEqualityComparer.Default)))
+            // If we have a parent that is or derives from ISerializable, then we are in override
+            var isOverride = ContainsInterface(classSymbol.BaseType, serializableInterfaceAttribute);
+
+            if (!isOverride && !ContainsInterface(classSymbol, serializableInterfaceAttribute))
             {
                 return null;
             }
@@ -145,54 +149,6 @@ namespace {namespaceName}
 
         public {className}(Serial serial) : base(serial)
         {{
-        }}
-");
-        }
-
-        private static void GenerateProperty(
-            StringBuilder source,
-            IFieldSymbol fieldSymbol,
-            ISymbol serializableFieldAttribute
-        )
-        {
-            var hasAttribute = fieldSymbol.GetAttributes()
-                .Any(
-                    attr => SymbolEqualityComparer.Default.Equals(attr.AttributeClass, serializableFieldAttribute)
-                );
-
-            if (!hasAttribute)
-            {
-                return;
-            }
-
-            // get the name and type of the field
-            var fieldName = fieldSymbol.Name;
-            var fieldType = fieldSymbol.Type;
-
-            var propertyName = fieldName;
-
-            if (propertyName.StartsWith("m_", StringComparison.OrdinalIgnoreCase))
-            {
-                propertyName = propertyName.Substring(2);
-            }
-            else if (propertyName.StartsWith("_", StringComparison.OrdinalIgnoreCase))
-            {
-                propertyName = propertyName.Substring(1);
-            }
-
-            propertyName = propertyName.Dehumanize();
-
-            source.AppendLine($@"        public {fieldType} {propertyName}
-        {{
-            get => {fieldName};
-            set
-            {{
-                if (value != {fieldName})
-                {{
-                    MarkDirtyg();
-                    {fieldName} = value;
-                }}
-            }}
         }}
 ");
         }

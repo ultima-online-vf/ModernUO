@@ -66,7 +66,7 @@ namespace Server
 
         public Map Map { get; private set; }
 
-        public virtual void MoveToWorld(Point3D newLocation, Map map)
+        public void MoveToWorld(Point3D newLocation, Map map)
         {
             Location = newLocation;
             Map = map;
@@ -75,10 +75,6 @@ namespace Server
         public bool Deleted { get; }
 
         public void Delete()
-        {
-        }
-
-        public void MarkDirty()
         {
         }
 
