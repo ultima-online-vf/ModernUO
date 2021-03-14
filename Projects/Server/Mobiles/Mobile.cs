@@ -379,22 +379,6 @@ namespace Server
         Cured
     }
 
-    [System.Serializable]
-    public class MobileNotConnectedException : Exception
-    {
-        public MobileNotConnectedException(Mobile source, string message)
-            : base(message) =>
-            Source = source.ToString();
-
-        public MobileNotConnectedException(Mobile source, string message, Exception innerException)
-            : base(message, innerException) =>
-            Source = source.ToString();
-
-        protected MobileNotConnectedException(SerializationInfo info, StreamingContext context) : base(info, context)
-        {
-        }
-    }
-
     public delegate bool SkillCheckTargetHandler(
         Mobile from, SkillName skill, object target, double minSkill,
         double maxSkill
@@ -413,8 +397,7 @@ namespace Server
     public delegate bool AllowHarmfulHandler(Mobile from, Mobile target);
 
     public delegate Container CreateCorpseHandler(
-        Mobile from, HairInfo hair, FacialHairInfo facialhair,
-        List<Item> initialContent, List<Item> equippedItems
+        Mobile from, HairInfo hair, FacialHairInfo facialhair, List<Item> initialContent, List<Item> equippedItems
     );
 
     public delegate int AOSStatusHandler(Mobile from, int index);
@@ -8347,17 +8330,12 @@ namespace Server
         public void Yell(int number, string args = "") =>
             PublicOverheadMessage(MessageType.Yell, YellHue, number, args);
 
-        public bool SendHuePicker(HuePicker p, bool throwOnOffline = false)
+        public bool SendHuePicker(HuePicker p)
         {
             if (m_NetState != null)
             {
                 p.SendTo(m_NetState);
                 return true;
-            }
-
-            if (throwOnOffline)
-            {
-                throw new MobileNotConnectedException(this, "Hue picker could not be sent.");
             }
 
             return false;

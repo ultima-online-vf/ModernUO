@@ -48,6 +48,8 @@ namespace Server
         {
         }
 
+        long ISerializable.SavePosition { get; set; }
+
         BufferWriter ISerializable.SaveBuffer { get; set; }
 
         public int TypeRef { get; } = -1;
