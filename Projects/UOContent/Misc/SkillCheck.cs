@@ -1,4 +1,5 @@
 using System;
+using Server.Engines.Difficulty;
 using Server.Factions;
 using Server.Mobiles;
 using Server.Regions;
@@ -292,10 +293,23 @@ namespace Server.Misc
                     }
                 }
 
-                if (from is PlayerMobile pm && skill.SkillName == pm.AcceleratedSkill &&
-                    pm.AcceleratedStart > Core.Now)
+                if (from is PlayerMobile pm)
                 {
-                    toGain *= Utility.RandomMinMax(2, 5);
+                    if (skill.SkillName == pm.AcceleratedSkill &&
+                        pm.AcceleratedStart > Core.Now)
+                    {
+                        toGain *= Utility.RandomMinMax(2, 5);
+                    }
+
+                    if (pm.DifficultyMode == DifficultyMode.Hard)
+                    {
+                        toGain *= DifficultyMulipliers.HardMultiplier;
+                    }
+
+                    if (pm.DifficultyMode == DifficultyMode.Nightmare)
+                    {
+                        toGain *= DifficultyMulipliers.NightmareMultiplier;
+                    }
                 }
 
                 if (!from.Player || skills.Total + toGain <= skills.Cap)

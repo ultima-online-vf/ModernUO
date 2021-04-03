@@ -106,6 +106,22 @@ namespace Server
             return value;
         }
 
+        public static float GetOrUpdateSetting(string key, float defaultValue)
+        {
+            float value;
+
+            if (m_Settings.settings.TryGetValue(key, out var strValue))
+            {
+                value = float.TryParse(strValue, out value) ? value : defaultValue;
+            }
+            else
+            {
+                SetSetting(key, (value = defaultValue).ToString());
+            }
+
+            return value;
+        }
+
         public static bool GetOrUpdateSetting(string key, bool defaultValue)
         {
             bool value;
