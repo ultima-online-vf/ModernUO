@@ -5,6 +5,7 @@ using Server.ContextMenus;
 using Server.Engines.BulkOrders;
 using Server.Engines.ConPVP;
 using Server.Engines.Craft;
+using Server.Engines.Difficulty;
 using Server.Engines.Help;
 using Server.Engines.MLQuests;
 using Server.Engines.MLQuests.Gumps;
@@ -39,43 +40,6 @@ using RankDefinition = Server.Guilds.RankDefinition;
 
 namespace Server.Mobiles
 {
-    [Flags]
-    public enum PlayerFlag // First 16 bits are reserved for default-distro use, start custom flags at 0x00010000
-    {
-        None = 0x00000000,
-        Glassblowing = 0x00000001,
-        Masonry = 0x00000002,
-        SandMining = 0x00000004,
-        StoneMining = 0x00000008,
-        ToggleMiningStone = 0x00000010,
-        KarmaLocked = 0x00000020,
-        AutoRenewInsurance = 0x00000040,
-        UseOwnFilter = 0x00000080,
-        PagingSquelched = 0x00000200,
-        Young = 0x00000400,
-        AcceptGuildInvites = 0x00000800,
-        DisplayChampionTitle = 0x00001000,
-        HasStatReward = 0x00002000,
-        RefuseTrades = 0x00004000
-    }
-
-    public enum NpcGuild
-    {
-        None,
-        MagesGuild,
-        WarriorsGuild,
-        ThievesGuild,
-        RangersGuild,
-        HealersGuild,
-        MinersGuild,
-        MerchantsGuild,
-        TinkersGuild,
-        TailorsGuild,
-        FishermensGuild,
-        BardsGuild,
-        BlacksmithsGuild
-    }
-
     public enum SolenFriendship
     {
         None,
@@ -200,10 +164,16 @@ namespace Server.Mobiles
 
         private QuestArrow m_QuestArrow;
 
+        [CommandProperty(AccessLevel.GameMaster)]
+        public DifficultyMode DifficultyMode { get; set; }
+
+        /* Used to keep track of the amount of lives left depending on the difficulty mode */
+        [CommandProperty(AccessLevel.GameMaster)]
+        public int LivesRemaining { get; set; }
+
         public PlayerMobile()
         {
             AutoStabled = new List<Mobile>();
-
             VisibilityList = new List<Mobile>();
             PermaFlags = new List<Mobile>();
             m_AntiMacroTable = new Dictionary<Skill, Dictionary<object, CountAndTimeStamp>>();
@@ -2727,6 +2697,9 @@ namespace Server.Mobiles
                     RemoveBuff(list[i]);
                 }
             }
+
+            ILifeCycleHandler lifeCycleHandler = new LifeCycleHandler();
+            lifeCycleHandler.DeductLife(this, out var livesRemaining);
         }
 
         public override bool MutateSpeech(List<Mobile> hears, ref string text, ref object context)
@@ -2947,6 +2920,12 @@ namespace Server.Mobiles
 
             switch (version)
             {
+                case 30:
+                    {
+                        DifficultyMode = (global::DifficultyMode) reader.ReadInt();
+                        LivesRemaining = reader.ReadInt();
+                        goto case 29;
+                    }
                 case 29:
                     {
                         if (reader.ReadBool())
@@ -3280,7 +3259,10 @@ namespace Server.Mobiles
 
             base.Serialize(writer);
 
-            writer.Write(29); // version
+            writer.Write(30); // version
+
+            writer.Write((int)DifficultyMode);
+            writer.Write(LivesRemaining);
 
             if (m_StuckMenuUses != null)
             {
