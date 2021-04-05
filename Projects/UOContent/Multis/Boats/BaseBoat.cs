@@ -93,6 +93,8 @@ namespace Server.Multis
             Movable = false;
 
             Boats.Add(this);
+
+            UpdateComponents();
         }
 
         public BaseBoat(Serial serial) : base(serial)
@@ -1314,6 +1316,7 @@ namespace Server.Multis
 
             if (SetFacing((Direction)(((int)m_Facing + offset) & 0x7)))
             {
+                UpdateComponents();
                 return true;
             }
 
@@ -1606,7 +1609,6 @@ namespace Server.Multis
                                     (NextNavPoint + 1).ToString()
                                 ); // Heading to nav point ~1_POINT_NUM~, sir.
                             }
-
                             return true;
                         }
 
